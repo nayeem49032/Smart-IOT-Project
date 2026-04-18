@@ -663,8 +663,10 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-  ppm = 342, sessionPeak = 487, sampleCount = 48, totalSum = 16416, startTime = Date.now();
+  const ESP32_IP = "http://192.168.10.182";
+  let ppm = 342, sessionPeak = 487, sampleCount = 48, totalSum = 16416, startTime = Date.now();
   let history = [310, 318, 325, 330, 338, 342, 339, 345, 350, 342, 337, 342];
+  let lastFetchTime = Date.now();
 
   const sparkCtx = document.getElementById('sparkChart').getContext('2d');
   const sparkChart = new Chart(sparkCtx, {
@@ -736,74 +738,43 @@
   }
 
   function updateSensor() {
-    const delta = (Math.random() - 0.48) * 15;
-    ppm = Math.max(100, Math.min(950, ppm + delta));
-    totalSum += ppm;
-    sampleCount++;
-    if (ppm > sessionPeak) sessionPeak = ppm;
+    fetch(ESP32_IP + '/data')
+      .then(response => {
+        if (!response.ok) throw new Error("Offline");
+        return response.json();
+      })
+      .then(data => {
+        // নতুন ডেটা আসার পর গ্লোবাল ভেরিয়েবলগুলো আপডেট করো
+        ppm = data.ppm; 
+        totalSum += ppm;
+        sampleCount++;
+        if (ppm > sessionPeak) sessionPeak = ppm;
 
-    history.push(Math.round(ppm));
-    if (history.length > 12) history.shift();
+        history.push(Math.round(ppm));
+        if (history.length > 12) history.shift();
 
-    sparkChart.data.datasets[0].data = history;
-    sparkChart.data.datasets[0].borderColor = getColor(ppm);
-    sparkChart.data.datasets[0].backgroundColor = getColor(ppm) + '18';
-    sparkChart.update('none');
-
-    const trendVal = delta >= 0 ? '+' + delta.toFixed(1) : delta.toFixed(1);
-    document.getElementById('trend-val').textContent = trendVal + ' / 15s';
-
-    updateUI();
+        sparkChart.data.datasets[0].data = history;
+        sparkChart.data.datasets[0].borderColor = getColor(ppm);
+        sparkChart.data.datasets[0].backgroundColor = getColor(ppm) + '18';
+        sparkChart.update('none');
+        
+        updateUI();
+        lastFetchTime = Date.now();
+        document.getElementById('wifi-badge').className = "badge badge-on";
+        document.getElementById('sensor-badge').className = "badge badge-on";
+      })
+      .catch(err => {
+        console.error("ESP32 Offline", err);
+        document.getElementById('wifi-badge').className = "badge badge-off";
+        document.getElementById('sensor-badge').className = "badge badge-off";
+      });
   }
 
-  function addTgMessage(text, isUser) {
-    const feed = document.getElementById('tg-feed');
-    const msg = document.createElement('div');
-    msg.className = 'tg-msg';
-    if (isUser) {
-      msg.innerHTML = `<div class="tg-avatar" style="background:#D3D1C7;"><svg viewBox="0 0 24 24" fill="#5F5E5A" width="14" height="14"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><div><div class="tg-bubble" style="background:var(--color-background-info);color:var(--color-text-info);">${text}</div><div class="tg-time">just now</div></div>`;
-    } else {
-      msg.innerHTML = `<div class="tg-avatar"><svg viewBox="0 0 24 24" fill="#378ADD"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.25l-2.025 9.54c-.15.672-.54.836-1.092.52l-3.015-2.22-1.455 1.4c-.16.16-.3.295-.615.295l.22-3.11 5.64-5.096c.245-.22-.054-.34-.38-.12L6.94 14.04l-2.97-.925c-.645-.2-.658-.645.135-.955l11.58-4.466c.537-.195 1.008.13.877.556z"/></svg></div><div><div class="tg-bubble">${text}</div><div class="tg-time">just now</div></div>`;
-    }
-    feed.appendChild(msg);
-    feed.scrollTop = feed.scrollHeight;
-  }
-
-  function simulateCmd(cmd) {
-    addTgMessage(cmd, true);
-    setTimeout(() => {
-      if (cmd === '/status') {
-        addTgMessage('Air Quality: ' + ppm.toFixed(1) + ' PPM — ' + getStatusText(ppm), false);
-      } else if (cmd === '/reset') {
-        addTgMessage('Memory cleared. Rebooting device...', false);
-        totalSum = 0; sampleCount = 0; ppm = 0;
-        setTimeout(() => { ppm = 10; updateUI(); }, 800);
-      }
-    }, 600);
-  }
-
-  function sendTgCmd() {
-    const inp = document.getElementById('tg-input');
-    const val = inp.value.trim();
-    if (!val) return;
-    simulateCmd(val);
-    inp.value = '';
-  }
-
-  function sendReset() {
-    totalSum = 0; sampleCount = 0; ppm = 0;
-    history = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    updateUI();
-    sparkChart.data.datasets[0].data = history;
-    sparkChart.update('none');
-  }
-
-  document.getElementById('tg-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendTgCmd(); });
-
-  setTimeout(() => {
-    document.getElementById('sensor-badge').className = 'badge badge-on';
-    document.getElementById('sensor-badge').innerHTML = '<span class="dot dot-green"></span>Sensor Live';
-  }, 3000);
+  // Telegram functions...
+  function addTgMessage(text, isUser) { /* ... রাখা আগের কোডটি এখানে বসাও ... */ }
+  function simulateCmd(cmd) { /* ... রাখা আগের কোডটি এখানে বসাও ... */ }
+  function sendTgCmd() { /* ... রাখা আগের কোডটি এখানে বসাও ... */ }
+  function sendReset() { /* ... রাখা আগের কোডটি এখানে বসাও ... */ }
 
   setInterval(updateSensor, 2000);
   updateUI();
