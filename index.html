@@ -1,0 +1,391 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+  .pa-root { font-family: 'DM Sans', sans-serif; padding: 0; }
+  .pa-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem 0.5rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .pa-logo { display: flex; align-items: center; gap: 10px; }
+  .pa-logo-icon { width: 32px; height: 32px; border-radius: 8px; background: #1D9E75; display: flex; align-items: center; justify-content: center; }
+  .pa-logo-icon svg { width: 18px; height: 18px; }
+  .pa-brand { font-size: 13px; font-weight: 600; color: var(--color-text-primary); letter-spacing: 0.04em; }
+  .pa-sub { font-size: 11px; color: var(--color-text-secondary); font-weight: 400; }
+  .pa-badges { display: flex; gap: 8px; }
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; }
+  .badge-on { background: #EAF3DE; color: #3B6D11; }
+  .badge-warn { background: #FAEEDA; color: #854F0B; }
+  .badge-off { background: #F1EFE8; color: #5F5E5A; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .dot-green { background: #1D9E75; }
+  .dot-amber { background: #BA7517; }
+  .dot-gray { background: #888780; }
+  .pa-main { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 1rem 1.25rem; }
+  .pa-wide { grid-column: 1 / -1; }
+  .pa-half { grid-column: span 1; }
+  .pa-two { grid-column: span 2; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .card-label { font-size: 11px; color: var(--color-text-secondary); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+  .card-value { font-family: 'Space Mono', monospace; font-size: 36px; font-weight: 700; line-height: 1; }
+  .card-unit { font-family: 'Space Mono', monospace; font-size: 14px; color: var(--color-text-secondary); margin-left: 4px; }
+  .status-safe { color: #1D9E75; }
+  .status-danger { color: #D85A30; }
+  .status-warn { color: #BA7517; }
+  .pbar-wrap { margin-top: 10px; height: 6px; background: var(--color-background-secondary); border-radius: 4px; overflow: hidden; }
+  .pbar-fill { height: 100%; border-radius: 4px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+  .tier-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+  .tier { padding: 8px 10px; border-radius: 8px; font-size: 11px; font-weight: 500; }
+  .tier-label { font-size: 10px; font-weight: 400; color: var(--color-text-secondary); margin-top: 2px; }
+  .tier-val { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; }
+  .t1 { background: #EAF3DE; } .t1 .tier-val { color: #3B6D11; }
+  .t2 { background: #FAEEDA; } .t2 .tier-val { color: #854F0B; }
+  .t3 { background: #FAECE7; } .t3 .tier-val { color: #993C1D; }
+  .t4 { background: #FCEBEB; } .t4 .tier-val { color: #A32D2D; }
+  .mini-stat { display: flex; flex-direction: column; gap: 3px; }
+  .mini-val { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--color-text-primary); line-height: 1; }
+  .mini-lbl { font-size: 11px; color: var(--color-text-secondary); }
+  .tg-feed { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; max-height: 160px; overflow-y: auto; }
+  .tg-msg { display: flex; gap: 10px; align-items: flex-start; }
+  .tg-avatar { width: 28px; height: 28px; border-radius: 50%; background: #B5D4F4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .tg-avatar svg { width: 14px; height: 14px; }
+  .tg-bubble { background: var(--color-background-secondary); border-radius: 0 10px 10px 10px; padding: 6px 10px; font-size: 12px; line-height: 1.4; color: var(--color-text-primary); flex: 1; }
+  .tg-time { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+  .tg-input-row { display: flex; gap: 8px; margin-top: 10px; }
+  .tg-input-row input { flex: 1; font-size: 12px; padding: 6px 10px; height: auto; border-radius: 20px; }
+  .tg-send { padding: 6px 14px; font-size: 12px; border-radius: 20px; cursor: pointer; background: #1D9E75; color: white; border: none; font-weight: 500; }
+  .tg-send:hover { background: #0F6E56; }
+  .sparkline-wrap { position: relative; height: 80px; margin-top: 8px; }
+  .weather-row { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+  .weather-icon { width: 36px; height: 36px; background: #E6F1FB; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .weather-temp { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--color-text-primary); }
+  .weather-desc { font-size: 12px; color: var(--color-text-secondary); }
+  .mem-bar { display: flex; gap: 4px; margin-top: 8px; }
+  .mem-seg { height: 8px; border-radius: 4px; }
+  .oled-screen { background: #0a0a0a; border-radius: 10px; padding: 12px 14px; margin-top: 8px; font-family: 'Space Mono', monospace; color: #e0e0e0; font-size: 11px; line-height: 1.7; border: 2px solid #222; }
+  .oled-row { display: flex; justify-content: space-between; align-items: center; }
+  .oled-big { font-size: 28px; font-weight: 700; color: #ffffff; }
+  .oled-pbar { height: 4px; background: #222; border-radius: 2px; margin-top: 6px; overflow: hidden; }
+  .oled-pfill { height: 100%; background: #e0e0e0; border-radius: 2px; transition: width 0.6s; }
+  .cmd-btn { font-size: 11px; padding: 4px 12px; border-radius: 20px; cursor: pointer; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-secondary); color: var(--color-text-primary); margin-right: 4px; margin-top: 4px; }
+  .cmd-btn:hover { background: var(--color-background-tertiary); }
+  .section-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .section-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+  .chip { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+</style>
+
+<div class="pa-root">
+  <div class="pa-header">
+    <div class="pa-logo">
+      <div class="pa-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+          <path d="M12 8v4l3 3"/>
+        </svg>
+      </div>
+      <div>
+        <div class="pa-brand">Poultry-Advisor</div>
+        <div class="pa-sub">ESP32 · MQ-135 · SH1106</div>
+      </div>
+    </div>
+    <div class="pa-badges">
+      <span class="badge badge-on" id="wifi-badge"><span class="dot dot-green"></span>WiFi</span>
+      <span class="badge badge-on" id="inet-badge"><span class="dot dot-green"></span>Internet</span>
+      <span class="badge badge-warn" id="sensor-badge"><span class="dot dot-amber"></span>Warmup</span>
+    </div>
+  </div>
+
+  <div class="pa-main">
+    <div class="card pa-two" style="position:relative; overflow:hidden;">
+      <div class="section-row">
+        <div class="card-label">Live Air Quality · NH₃</div>
+        <span class="chip" id="status-chip">SAFE</span>
+      </div>
+      <div style="display:flex; align-items:baseline; gap:0;">
+        <span class="card-value" id="ppm-val" style="color: #1D9E75;">342</span>
+        <span class="card-unit">PPM</span>
+        <span style="font-size:12px; color:var(--color-text-secondary); margin-left:12px; font-family:'Space Mono',monospace;" id="trend-val">+2.1 / 15s</span>
+      </div>
+      <div class="pbar-wrap">
+        <div class="pbar-fill" id="main-pbar" style="width: 34%; background: #1D9E75;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--color-text-secondary); margin-top:4px;">
+        <span>0</span><span>250</span><span>500</span><span>750</span><span>1000 PPM</span>
+      </div>
+      <div class="tier-grid">
+        <div class="tier t1"><div class="tier-label">Safe</div><div class="tier-val">0–500</div></div>
+        <div class="tier t2"><div class="tier-label">Moderate</div><div class="tier-val">500–700</div></div>
+        <div class="tier t3"><div class="tier-label">High</div><div class="tier-val">700–900</div></div>
+        <div class="tier t4"><div class="tier-label">Danger</div><div class="tier-val">&gt;900</div></div>
+      </div>
+    </div>
+
+    <div class="card pa-half">
+      <div class="card-label">Session Stats</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px;">
+        <div class="mini-stat">
+          <span class="mini-val" id="avg-val">342</span>
+          <span class="mini-lbl">Running avg</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-val" id="sample-val">48</span>
+          <span class="mini-lbl">Samples</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-val" id="peak-val">487</span>
+          <span class="mini-lbl">Session peak</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-val" id="uptime-val">12m</span>
+          <span class="mini-lbl">Uptime</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pa-two">
+      <div class="section-row">
+        <div class="card-label">Trend · last 12 readings</div>
+        <span class="chip">15s interval</span>
+      </div>
+      <div class="sparkline-wrap">
+        <canvas id="sparkChart" role="img" aria-label="Sparkline of last 12 air quality readings"></canvas>
+      </div>
+    </div>
+
+    <div class="card pa-half">
+      <div class="card-label">Weather · Dhaka</div>
+      <div class="weather-row">
+        <div class="weather-icon" id="wx-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </div>
+        <div>
+          <div class="weather-temp" id="wx-temp">34°C</div>
+          <div class="weather-desc" id="wx-desc">Clear · 72% humidity</div>
+        </div>
+      </div>
+      <div style="margin-top:10px; font-size:11px; color:var(--color-text-secondary);">NH₃ risk elevated in heat &amp; humidity</div>
+    </div>
+
+    <div class="card pa-half">
+      <div class="section-row">
+        <div class="card-label">Memory · Preferences</div>
+      </div>
+      <div style="display:flex; align-items:baseline; gap:4px; margin-top:4px;">
+        <span style="font-family:'Space Mono',monospace; font-size:18px; font-weight:700;" id="mem-pct">2.3</span>
+        <span style="font-size:11px; color:var(--color-text-secondary);">% flash used</span>
+      </div>
+      <div class="mem-bar">
+        <div class="mem-seg" style="width: 2.3%; background: #1D9E75; min-width: 6px;"></div>
+        <div class="mem-seg" style="flex:1; background: var(--color-background-secondary);"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--color-text-secondary); margin-top:4px;">
+        <span id="sum-val">totalSum: 16416</span>
+        <span id="cnt-val">count: 48</span>
+      </div>
+      <button class="cmd-btn" onclick="sendReset()" style="margin-top:10px; color: #D85A30; border-color: #F09595;">Reset memory</button>
+    </div>
+
+    <div class="card pa-half">
+      <div class="card-label">OLED Preview</div>
+      <div class="oled-screen">
+        <div class="oled-row">
+          <span style="font-size:9px; letter-spacing:0.1em;">POULTRY FARM</span>
+          <span style="font-size:9px; color:#6ee7b7;" id="oled-conn">ON</span>
+        </div>
+        <div style="margin: 4px 0 2px; display:flex; align-items:baseline; gap:6px;">
+          <span class="oled-big" id="oled-ppm">342</span>
+          <span style="font-size:11px; color:#aaa;">PPM</span>
+        </div>
+        <div style="font-size:10px; color:#9fdfbf;" id="oled-status">Status: SAFE</div>
+        <div class="oled-pbar"><div class="oled-pfill" id="oled-fill" style="width:34%;"></div></div>
+      </div>
+    </div>
+
+    <div class="card pa-two">
+      <div class="section-row">
+        <div class="card-label">Telegram Bot</div>
+        <span class="chip">Auto-report: 60s</span>
+      </div>
+      <div class="tg-feed" id="tg-feed">
+        <div class="tg-msg">
+          <div class="tg-avatar"><svg viewBox="0 0 24 24" fill="#378ADD"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.25l-2.025 9.54c-.15.672-.54.836-1.092.52l-3.015-2.22-1.455 1.4c-.16.16-.3.295-.615.295l.22-3.11 5.64-5.096c.245-.22-.054-.34-.38-.12L6.94 14.04l-2.97-.925c-.645-.2-.658-.645.135-.955l11.58-4.466c.537-.195 1.008.13.877.556z"/></svg></div>
+          <div>
+            <div class="tg-bubble">Auto Report: 342.0 PPM — all clear.</div>
+            <div class="tg-time">just now</div>
+          </div>
+        </div>
+        <div class="tg-msg">
+          <div class="tg-avatar" style="background:#D3D1C7;"><svg viewBox="0 0 24 24" fill="#5F5E5A" width="14" height="14"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+          <div>
+            <div class="tg-bubble" style="background: var(--color-background-info); color: var(--color-text-info);">/status</div>
+            <div class="tg-time">2 min ago</div>
+          </div>
+        </div>
+        <div class="tg-msg">
+          <div class="tg-avatar"><svg viewBox="0 0 24 24" fill="#378ADD"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.25l-2.025 9.54c-.15.672-.54.836-1.092.52l-3.015-2.22-1.455 1.4c-.16.16-.3.295-.615.295l.22-3.11 5.64-5.096c.245-.22-.054-.34-.38-.12L6.94 14.04l-2.97-.925c-.645-.2-.658-.645.135-.955l11.58-4.466c.537-.195 1.008.13.877.556z"/></svg></div>
+          <div>
+            <div class="tg-bubble">Air Quality: 338.5 PPM</div>
+            <div class="tg-time">2 min ago</div>
+          </div>
+        </div>
+      </div>
+      <div class="tg-input-row">
+        <input type="text" id="tg-input" placeholder="Type /status or /reset..." />
+        <button class="tg-send" onclick="sendTgCmd()">Send</button>
+      </div>
+      <div style="margin-top:8px;">
+        <button class="cmd-btn" onclick="simulateCmd('/status')">/status</button>
+        <button class="cmd-btn" onclick="simulateCmd('/reset')">/reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let ppm = 342, sessionPeak = 487, sampleCount = 48, totalSum = 16416, startTime = Date.now();
+let history = [310, 318, 325, 330, 338, 342, 339, 345, 350, 342, 337, 342];
+
+const sparkCtx = document.getElementById('sparkChart').getContext('2d');
+const sparkChart = new Chart(sparkCtx, {
+  type: 'line',
+  data: {
+    labels: history.map((_, i) => i + 1),
+    datasets: [{
+      data: history,
+      borderColor: '#1D9E75',
+      backgroundColor: 'rgba(29,158,117,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 2,
+      pointBackgroundColor: '#1D9E75',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { display: false },
+      y: { display: true, grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { font: { size: 10, family: 'Space Mono' }, color: '#888' }, min: 200, max: 600 }
+    }
+  }
+});
+
+function getColor(v) {
+  if (v < 500) return '#1D9E75';
+  if (v < 700) return '#BA7517';
+  if (v < 900) return '#D85A30';
+  return '#A32D2D';
+}
+
+function getStatusText(v) {
+  if (v < 500) return 'SAFE';
+  if (v < 700) return 'MODERATE';
+  if (v < 900) return 'HIGH RISK';
+  return 'DANGER';
+}
+
+function updateUI() {
+  const color = getColor(ppm);
+  const pct = Math.min((ppm / 1000) * 100, 100).toFixed(1);
+  const status = getStatusText(ppm);
+
+  document.getElementById('ppm-val').textContent = Math.round(ppm);
+  document.getElementById('ppm-val').style.color = color;
+  document.getElementById('main-pbar').style.width = pct + '%';
+  document.getElementById('main-pbar').style.background = color;
+  document.getElementById('status-chip').textContent = status;
+  document.getElementById('status-chip').style.color = color;
+
+  document.getElementById('avg-val').textContent = Math.round(totalSum / sampleCount);
+  document.getElementById('sample-val').textContent = sampleCount;
+  document.getElementById('peak-val').textContent = Math.round(sessionPeak);
+
+  const secs = Math.floor((Date.now() - startTime) / 1000);
+  const upStr = secs < 60 ? secs + 's' : Math.floor(secs / 60) + 'm ' + (secs % 60) + 's';
+  document.getElementById('uptime-val').textContent = upStr;
+
+  document.getElementById('sum-val').textContent = 'totalSum: ' + Math.round(totalSum);
+  document.getElementById('cnt-val').textContent = 'count: ' + sampleCount;
+
+  document.getElementById('oled-ppm').textContent = Math.round(ppm);
+  document.getElementById('oled-fill').style.width = pct + '%';
+  document.getElementById('oled-status').textContent = 'Status: ' + (ppm < 500 ? 'SAFE' : 'DANGER');
+  document.getElementById('oled-status').style.color = ppm < 500 ? '#9fdfbf' : '#f87171';
+}
+
+function updateSensor() {
+  const delta = (Math.random() - 0.48) * 15;
+  ppm = Math.max(100, Math.min(950, ppm + delta));
+  totalSum += ppm;
+  sampleCount++;
+  if (ppm > sessionPeak) sessionPeak = ppm;
+
+  history.push(Math.round(ppm));
+  if (history.length > 12) history.shift();
+
+  sparkChart.data.datasets[0].data = history;
+  sparkChart.data.datasets[0].borderColor = getColor(ppm);
+  sparkChart.data.datasets[0].backgroundColor = getColor(ppm) + '18';
+  sparkChart.update('none');
+
+  const trendVal = delta >= 0 ? '+' + delta.toFixed(1) : delta.toFixed(1);
+  document.getElementById('trend-val').textContent = trendVal + ' / 15s';
+
+  updateUI();
+}
+
+function addTgMessage(text, isUser) {
+  const feed = document.getElementById('tg-feed');
+  const msg = document.createElement('div');
+  msg.className = 'tg-msg';
+  if (isUser) {
+    msg.innerHTML = `<div class="tg-avatar" style="background:#D3D1C7;"><svg viewBox="0 0 24 24" fill="#5F5E5A" width="14" height="14"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><div><div class="tg-bubble" style="background:var(--color-background-info);color:var(--color-text-info);">${text}</div><div class="tg-time">just now</div></div>`;
+  } else {
+    msg.innerHTML = `<div class="tg-avatar"><svg viewBox="0 0 24 24" fill="#378ADD"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.25l-2.025 9.54c-.15.672-.54.836-1.092.52l-3.015-2.22-1.455 1.4c-.16.16-.3.295-.615.295l.22-3.11 5.64-5.096c.245-.22-.054-.34-.38-.12L6.94 14.04l-2.97-.925c-.645-.2-.658-.645.135-.955l11.58-4.466c.537-.195 1.008.13.877.556z"/></svg></div><div><div class="tg-bubble">${text}</div><div class="tg-time">just now</div></div>`;
+  }
+  feed.appendChild(msg);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function simulateCmd(cmd) {
+  addTgMessage(cmd, true);
+  setTimeout(() => {
+    if (cmd === '/status') {
+      addTgMessage('Air Quality: ' + ppm.toFixed(1) + ' PPM — ' + getStatusText(ppm), false);
+    } else if (cmd === '/reset') {
+      addTgMessage('Memory cleared. Rebooting device...', false);
+      totalSum = 0; sampleCount = 0; ppm = 0;
+      setTimeout(() => { ppm = 10; updateUI(); }, 800);
+    }
+  }, 600);
+}
+
+function sendTgCmd() {
+  const inp = document.getElementById('tg-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  simulateCmd(val);
+  inp.value = '';
+}
+
+function sendReset() {
+  totalSum = 0; sampleCount = 0; ppm = 0;
+  history = [0,0,0,0,0,0,0,0,0,0,0,0];
+  updateUI();
+  sparkChart.data.datasets[0].data = history;
+  sparkChart.update('none');
+}
+
+document.getElementById('tg-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendTgCmd(); });
+
+setTimeout(() => {
+  document.getElementById('sensor-badge').className = 'badge badge-on';
+  document.getElementById('sensor-badge').innerHTML = '<span class="dot dot-green"></span>Sensor Live';
+}, 3000);
+
+setInterval(updateSensor, 2000);
+updateUI();
+</script>
